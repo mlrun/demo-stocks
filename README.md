@@ -1,8 +1,11 @@
 # Stocks Demo
 
+A common requirement is to run your data engineering pipeline as part of the serving. This is often done by reading data from external data sources and generating insights using machine learning models.
+
 This demo reads stock data, analyzes the related market news, and displays a dashboard of the data. The demo illustrates:
 
 - The ease of deploying Python code to a scalable function (using Nuclio).
+- Deploying and running an NLP model to perform Sentiment analysis.
 - Integration with Iguazio’s Real-Time Multi-Model Data Layer.
 - Leveraging machine-learning to generate insights.
 - Processing streaming data to a user friendly dashboard.
