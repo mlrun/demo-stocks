@@ -98,5 +98,9 @@ def kfpipeline(
     stream_viewer = funcs['stream_viewer'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
                                                             'STOCKS_STREAM': STOCKS_STREAM})
     
-#     grafana_dashboard = funcs['grafana'].as_step(name='grafana_deployer')
+    grafana_dashboard = funcs['grafana'].as_step(name='grafana_deployer',
+                                                 params={streamview_url: stream_viewer.outputs['endpoint'],
+                                                         v3io_container: V3IO_CONTAINER,
+                                                         stocks_kv_table: STOCKS_KV_TABLE,
+                                                         stocks_tsdb_table: STOCKS_TSDB_TABLE})
     
