@@ -1,0 +1,26 @@
+name: stocks
+params:
+  STOCKS_TSDB_TABLE: stocks/stocks_tsdb
+functions:
+- url: code/03-read-stocks.yaml
+  name: stocks_reader
+  kind: nuclio
+- url: code/04-read-news.yaml
+  name: news_reader
+  kind: nuclio
+- url: code/05-stream-viewer.ipynb
+  name: stream_viewer
+  kind: nuclio
+- url: code/06-grafana.ipynb
+  name: grafana_deployer
+  kind: job
+- url: training/bert_sentiment_classification.yaml
+  name: bert_sentiment_classifier_trainer
+  kind: job
+- url: hub://sentiment_analysis_serving
+  name: sentiment_analysis_server
+workflows:
+- name: main
+  path: /User/demo-stocks/code/workflow.py
+artifacts: []
+artifact_path: ''
