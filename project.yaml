@@ -1,6 +1,4 @@
 name: stocks
-params:
-  STOCKS_TSDB_TABLE: stocks/stocks_tsdb
 functions:
 - url: code/03-read-stocks.yaml
   name: stocks_reader
@@ -8,11 +6,11 @@ functions:
 - url: code/04-read-news.yaml
   name: news_reader
   kind: nuclio
-- url: code/05-stream-viewer.ipynb
+- url: code/05-stream-viewer.yaml
   name: stream_viewer
   kind: nuclio
-- url: code/06-grafana.ipynb
-  name: grafana_deployer
+- url: code/06-grafana.yaml
+  name: grafana
   kind: job
 - url: training/bert_sentiment_classification.yaml
   name: bert_sentiment_classifier_trainer
@@ -23,4 +21,4 @@ workflows:
 - name: main
   path: /User/demo-stocks/code/workflow.py
 artifacts: []
-artifact_path: ''
+artifact_path: /User/demo-stocks/artifacts
