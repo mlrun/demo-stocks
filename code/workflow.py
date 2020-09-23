@@ -32,6 +32,7 @@ def kfpipeline(
     # General
     V3IO_CONTAINER = 'bigdata',
     STOCKS_TSDB_TABLE = 'stocks/stocks_tsdb',
+    STOCKS_SENTIMENT_TSDB_TABLE = 'stocks/stocks_sentiment_tsdb',
     STOCKS_KV_TABLE = 'stocks/stocks_kv',
     STOCKS_STREAM = 'stocks/stocks_stream',
     RUN_TRAINER = False,
@@ -86,8 +87,9 @@ def kfpipeline(
         sentiment_server = funcs['sentiment_analysis_server'].deploy_step(env={f'SERVING_MODEL_{model_name}': model_filepath})
         
         news_reader = funcs['news_reader'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
-                                                        'STOCKS_STREAM': STOCKS_STREAM,
-                                                        'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
+                                                            'STOCKS_STREAM': STOCKS_STREAM,
+                                                            'STOCKS_SENTIMENT_TSDB_TABLE': STOCKS_SENTIMENT_TSDB_TABLE,
+                                                            'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
     
     stocks_reader = funcs['stocks_reader'].deploy_step(env={'STOCK_LIST': STOCK_LIST,
                                                             'V3IO_CONTAINER': V3IO_CONTAINER,
