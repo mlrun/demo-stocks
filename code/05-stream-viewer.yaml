@@ -2,7 +2,7 @@ kind: remote
 metadata:
   name: stream-viewer
   tag: ''
-  hash: 8c9bf8235a2e1fe61fdd2a77a8be8fbef9040370
+  hash: b90d8b8999b54db4e7de136f46cc103d94517822
   project: default
 spec:
   command: ''
@@ -33,18 +33,6 @@ spec:
   min_replicas: 1
   max_replicas: 4
   env: []
-  config:
-    spec.triggers.http:
-      kind: http
-      maxWorkers: 8
-      attributes:
-        ingresses:
-          '0':
-            host: stream-viewer.default-tenant.app.netapp-cvs-demo.iguazio-cd0.com
-            paths:
-            - /
-            secretName: ingress-tls
-      annotations: {}
   base_spec:
     apiVersion: nuclio.io/v1
     kind: Function
