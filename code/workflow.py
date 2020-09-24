@@ -4,10 +4,15 @@ import os
 from nuclio.triggers import V3IOStreamTrigger
 
 funcs = {}
+
+# Directories and Paths
 projdir = os.path.join('/', 'User', 'demo-stocks')
 # model_filepath = os.path.join(projdir, 'models', 'bert_sentiment_analysis_model.pt')
 model_filepath = os.path.join(projdir, 'models', 'model.pt')
 reviews_datafile = os.path.join(projdir, 'data', 'reviews.csv')
+
+# Performence limit
+sentiment_server_max_replicas = 1
 
 
 def init_functions(functions: dict, project=None, secrets=None):
@@ -22,6 +27,7 @@ def init_functions(functions: dict, project=None, secrets=None):
     functions['sentiment_analysis_server'].add_model('bert_classifier_v1', model_filepath)
     functions['sentiment_analysis_server'].spec.readiness_timeout = 500
     functions['sentiment_analysis_server'].set_config('readinessTimeoutSeconds', 500)
+    functions['sentiment_analysis_server'].spec.max_replicas = sentiment_server_max_replicas
                 
         
 @dsl.pipeline(
@@ -49,7 +55,7 @@ def kfpipeline(
     random_state = 42,
     
     # stocks reader
-    STOCK_LIST = ['GOOG', 'MSFT', 'AMZN', 'AAPL', 'INTC'],
+    STOCK_LIST = ['GOOGL', 'MSFT', 'AMZN', 'AAPL', 'INTC'],
     EXPRESSION_TEMPLATE = "symbol='{symbol}';price={price};volume={volume};last_updated='{last_updated}'",
     
     # Sentiment analysis server
@@ -106,6 +112,7 @@ def kfpipeline(
                                                  params={'streamview_url': stream_viewer.outputs['endpoint'],
                                                          'v3io_container': V3IO_CONTAINER,
                                                          'stocks_kv_table': STOCKS_KV_TABLE,
-                                                         'stocks_tsdb_table': STOCKS_TSDB_TABLE},
+                                                         'stocks_tsdb_table': STOCKS_TSDB_TABLE,
+                                                         'stocks_sentiment_tsdb_table': STOCKS_SENTIMENT_TSDB_TABLE,},
                                                  image=grafana_builder.outputs['image'])
     
