@@ -1,15 +1,15 @@
 name: stocks
 functions:
-- url: code/03-read-stocks.yaml
+- url: code/01-read-stocks.yaml
   name: stocks_reader
   kind: nuclio
-- url: code/04-read-news.yaml
+- url: code/02-read-news.yaml
   name: news_reader
   kind: nuclio
-- url: code/05-stream-viewer.yaml
+- url: code/03-stream-viewer.yaml
   name: stream_viewer
   kind: nuclio
-- url: code/06-grafana.yaml
+- url: code/04-grafana.yaml
   name: grafana
   kind: job
 - url: training/bert_sentiment_classification.yaml
@@ -21,4 +21,4 @@ workflows:
 - name: main
   path: /User/demo-stocks/code/workflow.py
 artifacts: []
-artifact_path: /User/demo-stocks/artifacts
+artifact_path: ''
