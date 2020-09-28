@@ -6,7 +6,7 @@ A common requirement is to run your data engineering pipeline as part of the ser
 This demo reads stock data, analyzes the related market news, and displays a dashboard of the data. In this demo we show how to:
 
 1. Train a sentiment analysis model using BERT and deploy the model.
-2. Deploying Python code to a scalable function (using Nuclio).
+2. Deploy Python code to a scalable function (using Nuclio).
 3. Integrate with Iguazio’s Real-Time Multi-Model Data Layer (time-series and key-value storage).
 4. Leverage machine-learning to generate insights.
 5. Process streaming data to a user friendly dashboard.
@@ -45,12 +45,23 @@ You can review the output using the [explore notebook](code/05-explore.ipynb) us
 ![Stocks time-series graph](assets/images/stocks-demo-explore.png)
 
 
+## Notebooks
+
+- [**project.ipynb**](project.ipynb) - The main notebook. Run this notebook for the entire pipeline.
+- [**bert_sentiment_classification.ipynb**](training/bert_sentiment_classification.ipynb) - Training & validation (BERT model).
+- [**00-deploy-sentiment-model.ipynb**](code/00-deploy-sentiment-model.ipynb) - Deploy the pre-trained sentiment analysis model.
+- [**01-read-stocks.ipynb**](code/01-read-stocks.ipynb) - Deploy the stock symbol price and volume Nuclio function.
+- [**02-read-news.ipynb**](code/02-read-news.ipynb) - Deploy the news reader Nuclio function.
+- [**03-stream-viewer.ipynb**](code/03-stream-viewer.ipynb) - Create a source of the news stream for Grafana.
+- [**04-grafana.ipynb**](code/04-grafana.ipynb) - Deploy the Grafana dashboard.
+- [**05-explore.ipynb**](code/05-explore.ipynb) - Explore the output.
+
 ## Training & validation (BERT model)
 This step is implemented by the [**bert_sentiment_classification notebook**](training/bert_sentiment_classification.ipynb). We have trained this model in advance, and therefore you can download the model and skip this step entirely.
 
 The training notebook downloads the pre-trained huggingface transformers BERT model ([bert-base-cased model](https://huggingface.co/bert-base-cased)) and and further trains it using a custom [local customer reviews CSV file](data/reviews.csv). This yields a sentiment analysis model based on the prior knowledge of BERT.
 
-You can run the training process as part of the pipeline by changing `RUN_TRAINER` to `True` in the [project notebook](project.ipynb).
+You can run the training process as part of the pipeline by changing `RUN_TRAINER` to `True` in the [**project notebook**](project.ipynb).
 
 ## Sentiment Analysis
 
@@ -65,15 +76,18 @@ This step deploys a Nuclio function called `stocks-sentiment-analysis` that serv
 
 This step deploys a Nuclio function called `stocks-read-news` which is triggered every 5 minutes. The function reads the latest news updates for the selected stock symbols, calculates their sentiment based on the sentiment analysis function, and updates the feature store with the news stream as well as updates to the stock sentiment in the time-series database.
 
-You can review the code and deploy this function with the [read-news notebook](code/02-read-news.ipynb).
+You can review the code and deploy this function with the [**read-news notebook**](code/02-read-news.ipynb).
 
 ## Ingest Stocks
 
 This step deploys another Nuclio function called `stocks-read-stocks`. When initially loaded, the function updates the feature store with the stock prices and volume of the last 7 days. Then, the function is triggered every 5 minutes and updates the feature store with the stock prices and volume data of that interval.
 
-You can review the code and deploy this function with the [read-stocks notebook](code/01-read-stocks.ipynb).
+You can review the code and deploy this function with the [**read-stocks notebook**](code/01-read-stocks.ipynb).
 
 ## News Viewer and Dashboard
 
-The news stream in the feature store is read by the [stream viewer](code/03-stream-viewer.ipynb) which serves as a data source for the Grafana dashboard. The dashboard is created programmatically [Grafana notebook](code/04-grafana.ipynb).
+The news stream in the feature store is read by the [**stream viewer**](code/03-stream-viewer.ipynb) which serves as a data source for the Grafana dashboard. The dashboard is created programmatically [**Grafana notebook**](code/04-grafana.ipynb).
 
+## Explore
+
+Use the Iguazio real-time multi-model data layer to read data using query engines, such as Spark and Presto to explore the data.
