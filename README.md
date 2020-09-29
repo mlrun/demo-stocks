@@ -12,7 +12,7 @@ This demo reads stock data, analyzes the related market news, and displays a das
 5. Process streaming data to a user friendly dashboard.
 
 The demo flow is as follows:
-<img src="assets/images/stocks-demo-diagram.png" alt="stocks demo flow" height="600" />
+![stocks demo flow](assets/images/stocks-demo-diagram.png)
 
 ## Prerequisites
 This demo is pre-configured to run on the Iguazio Data Science Platform.
