@@ -12,7 +12,7 @@ model_filepath = os.path.join(projdir, 'models', 'model.pt')
 reviews_datafile = os.path.join(projdir, 'data', 'reviews.csv')
 
 # Performence limit
-sentiment_server_max_replicas = 1
+max_replicas = 1
 
 
 def init_functions(functions: dict, project=None, secrets=None):
@@ -27,7 +27,11 @@ def init_functions(functions: dict, project=None, secrets=None):
     functions['sentiment_analysis_server'].add_model('bert_classifier_v1', model_filepath)
     functions['sentiment_analysis_server'].spec.readiness_timeout = 500
     functions['sentiment_analysis_server'].set_config('readinessTimeoutSeconds', 500)
-    functions['sentiment_analysis_server'].spec.max_replicas = sentiment_server_max_replicas
+    
+    # Set max replicas for resource limits
+    functions['sentiment_analysis_server'].spec.max_replicas = max_replicas
+    functions['news_reader'].spec.max_replicas = max_replicas
+    functions['stocks_reader'].spec.max_replicas = max_replicas
                 
         
 @dsl.pipeline(
@@ -85,8 +89,9 @@ def kfpipeline(
         sentiment_server = funcs['sentiment_analysis_server'].deploy_step(env={f'SERVING_MODEL_{model_name}': trainer.outputs['bert_sentiment_analysis_model']})
         
         news_reader = funcs['news_reader'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
-                                                        'STOCKS_STREAM': STOCKS_STREAM,
-                                                        'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
+                                                            'STOCKS_STREAM': STOCKS_STREAM,
+                                                            'STOCKS_SENTIMENT_TSDB_TABLE': STOCKS_SENTIMENT_TSDB_TABLE,
+                                                            'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
     
     with dsl.Condition(RUN_TRAINER == False):
         
