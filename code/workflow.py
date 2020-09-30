@@ -7,8 +7,7 @@ funcs = {}
 
 # Directories and Paths
 projdir = os.path.join('/', 'User', 'demo-stocks')
-# model_filepath = os.path.join(projdir, 'models', 'bert_sentiment_analysis_model.pt')
-model_filepath = os.path.join(projdir, 'models', 'model.pt')
+model_filepath = os.path.join(projdir, 'models', 'model.pt') # Previously saved model if downloaded
 reviews_datafile = os.path.join(projdir, 'data', 'reviews.csv')
 
 # Performence limit
