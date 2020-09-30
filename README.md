@@ -27,10 +27,7 @@ Also ensure that you have a Grafana service named `grafana`. You can add a new s
 
 ## Quick-Start
 
-To run the demo:
-
-1. Open and run [**00-deploy-sentiment-model.ipynb**](code/00-deploy-sentiment-model.ipynb) to deploy the pre-computed sentiment analysis model
-2. Open and run [**project.ipynb**](project.ipynb) to run the pipeline.
+To run the demo, Open and run [**project.ipynb**](project.ipynb) and run the pipeline.
 
 This will create a pipeline as displayed below:
 
@@ -48,8 +45,7 @@ You can review the output using the [explore notebook](code/05-explore.ipynb) us
 ## Notebooks
 
 - [**project.ipynb**](project.ipynb) - The main notebook. Run this notebook for the entire pipeline.
-- [**bert_sentiment_classification.ipynb**](training/bert_sentiment_classification.ipynb) - Training & validation (BERT model).
-- [**00-deploy-sentiment-model.ipynb**](code/00-deploy-sentiment-model.ipynb) - Deploy the pre-trained sentiment analysis model.
+- [**00-train-sentiment-analysis-model.ipynb**](code/00-train-sentiment-analysis-model.ipynb) - Training & validation (BERT model).
 - [**01-read-stocks.ipynb**](code/01-read-stocks.ipynb) - Deploy the stock symbol price and volume Nuclio function.
 - [**02-read-news.ipynb**](code/02-read-news.ipynb) - Deploy the news reader Nuclio function.
 - [**03-stream-viewer.ipynb**](code/03-stream-viewer.ipynb) - Create a source of the news stream for Grafana.
@@ -57,7 +53,7 @@ You can review the output using the [explore notebook](code/05-explore.ipynb) us
 - [**05-explore.ipynb**](code/05-explore.ipynb) - Explore the output.
 
 ## Training & validation (BERT model)
-This step is implemented by the [**bert_sentiment_classification notebook**](training/bert_sentiment_classification.ipynb). We have trained this model in advance, and therefore you can download the model and skip this step entirely.
+This step is implemented by the [**00-train-sentiment-analysis-model.ipynb**](code/00-train-sentiment-analysis-model.ipynb). We have trained this model in advance, and therefore you can download the model and skip this step entirely.
 
 The training notebook downloads the pre-trained huggingface transformers BERT model ([bert-base-cased model](https://huggingface.co/bert-base-cased)) and and further trains it using a custom [local customer reviews CSV file](data/reviews.csv). This yields a sentiment analysis model based on the prior knowledge of BERT.
 
@@ -66,9 +62,9 @@ You can run the training process as part of the pipeline by changing `RUN_TRAINE
 ## Sentiment Analysis
 
 The model server is given a list of texts and outputs a list of labels corresponding to its prediction. The labels express the sentiment of the writer towards the topic of the text:
-- 0 for negative sentiment.
-- 1 for neutral sentiment.
-- 2 for positive sentiment.
+- (-1) for negative sentiment.
+- 0 for neutral sentiment.
+- 1 for positive sentiment.
 
 This step deploys a Nuclio function called `stocks-sentiment-analysis` that serves the model. The model file can be downloaded from <https://iguazio-sample-data.s3.amazonaws.com/models/model.pt>.
 
