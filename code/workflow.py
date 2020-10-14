@@ -1,7 +1,7 @@
 from kfp import dsl
 from mlrun import mount_v3io, mlconf
 import os
-from nuclio.triggers import V3IOStreamTrigger
+from nuclio.triggers import V3IOStreamTrigger, CronTrigger
 
 funcs = {}
 
@@ -12,6 +12,12 @@ reviews_datafile = os.path.join(projdir, 'data', 'reviews.csv')
 
 # Performence limit
 max_replicas = 1
+
+# Readers cron interval
+readers_cron_interval = '300s'
+
+# Training GPU Allocation
+training_gpus = 1
 
 
 def init_functions(functions: dict, project=None, secrets=None):
@@ -27,11 +33,18 @@ def init_functions(functions: dict, project=None, secrets=None):
     functions['sentiment_analysis_server'].spec.readiness_timeout = 500
     functions['sentiment_analysis_server'].set_config('readinessTimeoutSeconds', 500)
     
+    # Add triggers
+    functions['stocks_reader'].add_trigger('cron', CronTrigger(readers_cron_interval))
+    functions['news_reader'].add_trigger('cron', CronTrigger(readers_cron_interval))
+    
+    
     # Set max replicas for resource limits
     functions['sentiment_analysis_server'].spec.max_replicas = max_replicas
     functions['news_reader'].spec.max_replicas = max_replicas
     functions['stocks_reader'].spec.max_replicas = max_replicas
-                
+    
+    # Add GPU for training
+    functions['bert_sentiment_classifier_trainer'].gpus(training_gpus)
         
 @dsl.pipeline(
     name='Stocks demo deployer',
@@ -69,7 +82,7 @@ def kfpipeline(
     
     with dsl.Condition(RUN_TRAINER == True):
         
-        trainer_image_builder = funcs['bert_sentiment_classifier_trainer'].deploy_step(skip_deployed=True)
+#         trainer_image_builder = funcs['bert_sentiment_classifier_trainer'].deploy_step(skip_deployed=True)
         
         trainer = funcs['bert_sentiment_classifier_trainer'].as_step(name='bert_sentiment_classifier_trainer',
                                                                      params={'pretrained_model': pretrained_model,
@@ -82,7 +95,7 @@ def kfpipeline(
                                                                              'EPOCHS': EPOCHS,
                                                                              'random_state': random_state},
                                                                      inputs={'reviews_dataset': reviews_dataset},
-                                                                     image=trainer_image_builder.outputs['image'],
+#                                                                      image=trainer_image_builder.outputs['image'],
                                                                      outputs=['bert_sentiment_analysis_model'])
         
         sentiment_server = funcs['sentiment_analysis_server'].deploy_step(env={f'SERVING_MODEL_{model_name}': trainer.outputs['bert_sentiment_analysis_model']})
@@ -108,15 +121,4 @@ def kfpipeline(
                                                             'EXPRESSION_TEMPLATE': EXPRESSION_TEMPLATE})
     
     stream_viewer = funcs['stream_viewer'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
-                                                            'STOCKS_STREAM': STOCKS_STREAM}).after(news_reader)
-    
-    grafana_builder = funcs['grafana'].deploy_step(skip_deployed=True)
-    
-    grafana_dashboard = funcs['grafana'].as_step(name='grafana_deployer',
-                                                 params={'streamview_url': stream_viewer.outputs['endpoint'],
-                                                         'v3io_container': V3IO_CONTAINER,
-                                                         'stocks_kv_table': STOCKS_KV_TABLE,
-                                                         'stocks_tsdb_table': STOCKS_TSDB_TABLE,
-                                                         'stocks_sentiment_tsdb_table': STOCKS_SENTIMENT_TSDB_TABLE,},
-                                                 image=grafana_builder.outputs['image'])
-    
+                                                            'STOCKS_STREAM': STOCKS_STREAM}).after(news_reader)    
