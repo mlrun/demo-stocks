@@ -1,21 +1,17 @@
 name: stocks
 functions:
-- url: code/01-read-stocks.yaml
+- url: code/bert_sentiment_classification.yaml
+  name: bert_sentiment_classifier_trainer
+- url: code/01-read-stocks.ipynb
   name: stocks_reader
   kind: nuclio
-- url: code/02-read-news.yaml
+- url: code/02-read-news.ipynb
   name: news_reader
   kind: nuclio
-- url: code/03-stream-viewer.yaml
+- url: code/03-stream-viewer.ipynb
   name: stream_viewer
   kind: nuclio
-- url: code/04-grafana.yaml
-  name: grafana
-  kind: job
-- url: training/bert_sentiment_classification.yaml
-  name: bert_sentiment_classifier_trainer
-  kind: job
-- url: hub://sentiment_analysis_serving
+- url: /User/functions/sentiment_analysis_serving/bert_sentiment_analysis_serving.ipynb
   name: sentiment_analysis_server
 workflows:
 - name: main
