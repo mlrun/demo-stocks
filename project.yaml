@@ -4,14 +4,11 @@ functions:
   name: bert_sentiment_classifier_trainer
 - url: code/01-read-stocks.ipynb
   name: stocks_reader
-  kind: nuclio
 - url: code/02-read-news.ipynb
   name: news_reader
-  kind: nuclio
 - url: code/03-stream-viewer.ipynb
   name: stream_viewer
-  kind: nuclio
-- url: /User/functions/sentiment_analysis_serving/bert_sentiment_analysis_serving.ipynb
+- url: hub://sentiment_analysis_serving
   name: sentiment_analysis_server
 workflows:
 - name: main
