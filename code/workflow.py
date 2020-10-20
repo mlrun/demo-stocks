@@ -54,7 +54,6 @@ def kfpipeline(
     # General
     V3IO_CONTAINER = 'bigdata',
     STOCKS_TSDB_TABLE = 'stocks/stocks_tsdb',
-    STOCKS_SENTIMENT_TSDB_TABLE = 'stocks/stocks_sentiment_tsdb',
     STOCKS_KV_TABLE = 'stocks/stocks_kv',
     STOCKS_STREAM = 'stocks/stocks_stream',
     RUN_TRAINER = False,
@@ -67,7 +66,7 @@ def kfpipeline(
     n_classes = 3,
     MAX_LEN = 128,
     BATCH_SIZE = 16,
-    EPOCHS =  1,
+    EPOCHS =  2,
     random_state = 42,
     
     # stocks reader
@@ -81,9 +80,7 @@ def kfpipeline(
     ):
     
     with dsl.Condition(RUN_TRAINER == True):
-        
-#         trainer_image_builder = funcs['bert_sentiment_classifier_trainer'].deploy_step(skip_deployed=True)
-        
+      
         trainer = funcs['bert_sentiment_classifier_trainer'].as_step(name='bert_sentiment_classifier_trainer',
                                                                      params={'pretrained_model': pretrained_model,
                                                                              'EPOCHS': EPOCHS,
@@ -95,14 +92,13 @@ def kfpipeline(
                                                                              'EPOCHS': EPOCHS,
                                                                              'random_state': random_state},
                                                                      inputs={'reviews_dataset': reviews_dataset},
-#                                                                      image=trainer_image_builder.outputs['image'],
                                                                      outputs=['bert_sentiment_analysis_model'])
         
         sentiment_server = funcs['sentiment_analysis_server'].deploy_step(env={f'SERVING_MODEL_{model_name}': trainer.outputs['bert_sentiment_analysis_model']})
         
         news_reader = funcs['news_reader'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
                                                             'STOCKS_STREAM': STOCKS_STREAM,
-                                                            'STOCKS_SENTIMENT_TSDB_TABLE': STOCKS_SENTIMENT_TSDB_TABLE,
+                                                            'STOCKS_TSDB_TABLE': STOCKS_TSDB_TABLE,
                                                             'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
     
     with dsl.Condition(RUN_TRAINER == False):
@@ -111,7 +107,7 @@ def kfpipeline(
         
         news_reader = funcs['news_reader'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
                                                             'STOCKS_STREAM': STOCKS_STREAM,
-                                                            'STOCKS_SENTIMENT_TSDB_TABLE': STOCKS_SENTIMENT_TSDB_TABLE,
+                                                            'STOCKS_TSDB_TABLE': STOCKS_TSDB_TABLE,
                                                             'SENTIMENT_MODEL_ENDPOINT': sentiment_server.outputs['endpoint']})
     
     stocks_reader = funcs['stocks_reader'].deploy_step(env={'STOCK_LIST': STOCK_LIST,
@@ -121,4 +117,5 @@ def kfpipeline(
                                                             'EXPRESSION_TEMPLATE': EXPRESSION_TEMPLATE})
     
     stream_viewer = funcs['stream_viewer'].deploy_step(env={'V3IO_CONTAINER': V3IO_CONTAINER,
-                                                            'STOCKS_STREAM': STOCKS_STREAM}).after(news_reader)    
+                                                            'STOCKS_STREAM': STOCKS_STREAM}).after(news_reader)
+
